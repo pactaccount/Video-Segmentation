@@ -10,7 +10,7 @@ A CPU-optimized spatiotemporal data pipeline that rapidly segments continuous vi
 1. **Clone the repository:**
    ```bash
    git clone <your-repo-url>
-   cd Video_Segmentation_Pipeline
+   cd Video_Segmentation
    ```
 
 2. **Set up the Python environment:**
