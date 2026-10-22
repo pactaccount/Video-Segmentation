@@ -9,8 +9,8 @@ A CPU-optimized spatiotemporal data pipeline that rapidly segments continuous vi
 
 1. **Clone the repository:**
    ```bash
-   git clone <your-repo-url>
-   cd Video_Segmentation
+   git clone https://github.com/pactaccount/Video-Segmentation.git
+   cd Video-Segmentation
    ```
 
 2. **Set up the Python environment:**
@@ -32,3 +32,9 @@ A CPU-optimized spatiotemporal data pipeline that rapidly segments continuous vi
    ```
 3. Upload an MP4 video file via the sidebar.
 4. Adjust the SSIM Threshold or Sampling Rate sliders to optimize the segmentation sensitivity. The timeline will generate automatically.
+
+The core detector is in `segmenter.py`. Run `python3 -m unittest discover -s tests -v` for a generated scene-change check. See [résumé evidence](docs/RESUME_EVIDENCE.md) for measured and missing proof.
+
+## Résumé evidence
+
+[Résumé evidence and verification](docs/RESUME_EVIDENCE.md) records the use case, engineering approach, test status, measured results, limits, and safe résumé wording.
