@@ -4,6 +4,8 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from segmenter import segment_video
 
