@@ -1,0 +1,37 @@
+# Production image for Hybrid Video Segmentation + VLM Chaptering Engine
+# Base: Python 3.11 slim with OpenCV and PyTorch CPU/MPS support
+FROM python:3.11-slim
+
+# Prevent interactive prompts during pip install
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PORT=8000 \
+    PYTHONPATH=/app/src
+
+WORKDIR /app
+
+# Install system dependencies required by opencv-python-headless and PyTorch
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirement files first for layer caching
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy source modules
+COPY src/ ./src/
+
+# Non-root user for security
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Default: run FastAPI with uvicorn; override via docker-compose command
+EXPOSE 8000
+CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]

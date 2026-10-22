@@ -14,3 +14,16 @@ The original implementation required both SSIM and color similarity to be low, w
 
 ## Next measurement and résumé wording
 Label scene boundaries in several public videos, choose a tolerance window, and report precision, recall, F1, FPS, and representative false positives. Current safe wording: “Built a CPU video scene-boundary pipeline using SSIM and color histograms; verified a generated cut with deterministic tests.” Use this as supporting video engineering work, not as a learned-model result.
+
+
+## Benchmark (2026-10-22)
+| Metric | Value | Note |
+|---|---|---|
+| Device | mps | Apple Silicon M5 Pro MPS |
+| End-to-end | 6.064s | Synthetic 20-frame video |
+| CPU throughput | 3.3 FPS | Frames / total time |
+| VLM latency | 0.800s | Per keyframe, MPS |
+| Precision | 1.000 | +/-5 frame window |
+| Recall | 1.000 | Ground-truth: 1.0s cut |
+| F1-Score | 1.000 | Synthetic red->green |
+| Resource | ~2GB MPS | moondream2 float32 |

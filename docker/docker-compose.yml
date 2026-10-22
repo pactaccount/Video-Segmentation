@@ -1,0 +1,44 @@
+version: "3.8"
+services:
+  # FastAPI service (exposes /process-video and /jobs/{id})
+  api:
+    build: .
+    container_name: video_segmentation_api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app/src
+      - DEVICE=auto  # MPS if available, else CPU; handled by vlm_enricher.py
+    volumes:
+      - ./src:/app/src  # optional dev mount; remove for pure image
+    command: >
+      uvicorn src.api:app --host 0.0.0.0 --port 8000 --reload --workers 1
+    depends_on:
+      - redis
+
+  # Redis worker queue / result backend for Celery-style async (production extension)
+  redis:
+    image: redis:7-alpine
+    container_name: video_segmentation_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  # Optional Celery worker (can be scaled with docker-compose up --scale worker=3)
+  worker:
+    build: .
+    container_name: video_segmentation_worker
+    environment:
+      - PYTHONPATH=/app/src
+      - REDIS_URL=redis://redis:6379/0
+    command: >
+      celery -A src.pipeline worker --loglevel=info --concurrency=2
+    depends_on:
+      - redis
+    profiles:
+      - worker  # only start with docker-compose --profile worker up
+
+volumes:
+  redis_data:
