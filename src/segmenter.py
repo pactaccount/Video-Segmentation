@@ -43,26 +43,31 @@ def segment_video(path, threshold=0.70, sample_seconds=1.0):
     boundaries = []
     try:
         while True:
+            if frame_index % interval != 0:
+                if not capture.grab():
+                    break
+                frame_index += 1
+                continue
             ok, frame = capture.read()
             if not ok:
                 break
-            if frame_index % interval == 0:
-                small = cv2.resize(frame, (320, 240), interpolation=cv2.INTER_AREA)
-                gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
-                hist = _histogram(small)
-                sampled += 1
-                if previous_gray is not None:
-                    similarity = _ssim(previous_gray, gray)
-                    hist_corr = float(cv2.compareHist(previous_hist, hist, cv2.HISTCMP_CORREL))
-                    # Grayscale SSIM can miss a red-to-green cut with similar
-                    # luminance; the second clause catches large color changes.
-                    if similarity < threshold or (hist_corr < 0.3 and similarity < 0.95):
-                        boundaries.append({
-                            "timestamp_seconds": round(frame_index / fps, 2),
-                            "ssim": round(similarity, 3),
-                            "histogram_correlation": round(hist_corr, 3),
-                        })
-                previous_gray, previous_hist = gray, hist
+            small = cv2.resize(frame, (320, 240), interpolation=cv2.INTER_AREA)
+            gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+            hist = _histogram(small)
+            sampled += 1
+            if previous_gray is not None:
+                similarity = _ssim(previous_gray, gray)
+                hist_corr = float(cv2.compareHist(previous_hist, hist, cv2.HISTCMP_CORREL))
+                # Grayscale SSIM can miss a red-to-green cut with similar
+                # luminance; the second clause catches large color changes.
+                if similarity < threshold or (hist_corr < 0.3 and similarity < 0.95):
+                    boundaries.append({
+                        "timestamp_seconds": round(frame_index / fps, 2),
+                        "ssim": round(similarity, 3),
+                        "histogram_correlation": round(hist_corr, 3),
+                        "cut_type": "color_shift" if similarity >= threshold else "structural_cut",
+                    })
+            previous_gray, previous_hist = gray, hist
             frame_index += 1
     finally:
         capture.release()
