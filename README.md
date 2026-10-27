@@ -5,15 +5,24 @@ Built on OpenCV SSIM/HSV segmenter (src/segmenter.py), FastAPI backend (src/api.
 VLM captioning via vikhyatk/moondream2 on MPS (src/vlm_enricher.py), and Streamlit
 enterprise dashboard (app.py).
 
-## Architecture
-- src/segmenter.py — grayscale SSIM + HSV histogram scene detection
-- src/vlm_enricher.py — lightweight VLM caption (mock fallback if download blocked; verified MPS)
-- src/pipeline.py — orchestrator: segment -> keyframe -> enrich -> JSON manifest
-- src/api.py — FastAPI (POST /process-video, GET /jobs/{id})
-- app.py — live Streamlit UI wired to FastAPI (upload, poll, render, export)
-- docker/ — containerized build + redis/worker orchestration
-- tests/ — unit + benchmark (TRECVID-style +/-5-frame tolerance, F1/Precision/Recall)
-- docs/ — RESUME_EVIDENCE.md with benchmark table (FPS, latency, F1)
+## Repository Structure
+
+```text
+Video_Segmentation_Pipeline/
+├── src/                     # Core pipeline implementation
+│   ├── segmenter.py         # Grayscale SSIM + HSV histogram edge detector
+│   ├── vlm_enricher.py      # Moondream2 VLM keyframe captioning on MPS
+│   ├── pipeline.py          # Staged orchestrator: segment -> extract -> caption
+│   └── api.py               # FastAPI video processing endpoints
+├── app.py                   # Streamlit interactive dashboard
+├── tests/                   # TRECVID-style benchmark & unit test suite
+├── docs/                    # IEEE evaluation report & technical documentation
+│   ├── IEEE_EVALUATION_REPORT.md  # Comprehensive IEEE evaluation paper
+│   ├── TECHNICAL_PAPER.md         # Architecture & math formulation
+│   └── RESUME_EVIDENCE.md         # Recruiter evidence & test logs
+├── docker/                  # Dockerfile & container orchestration
+└── requirements.txt         # Pinned Python dependencies
+```
 
 ## 📑 Comprehensive IEEE Benchmark & Evaluation Report
 
